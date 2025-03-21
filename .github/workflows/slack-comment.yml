@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Comment to Slack
+        if: github.event.action == 'created'
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
