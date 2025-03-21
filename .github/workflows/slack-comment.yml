@@ -12,9 +12,8 @@ jobs:
         if: github.event.action == 'created'
         uses: slackapi/slack-github-action@v1.24.0
         with:
-          payload: |
-            {
-              "text": ":speech_balloon: *${{ github.actor }}* commented:\n>${{ github.event.comment.body }}\n\n🔗 <${{ github.event.comment.html_url }}|코멘트 바로 가기>"
-            }
+          payload: ${{ toJSON({
+            text: ":speech_balloon: *" + github.actor + "* commented:\n>" + github.event.comment.body + "\n\n🔗 <" + github.event.comment.html_url + "|코멘트 바로 가기>"
+          }) }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
