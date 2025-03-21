@@ -1,0 +1,19 @@
+name: Slack Comment Notifier
+
+on:
+  issue_comment:
+  pull_request_review_comment:
+
+jobs:
+  notify-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Comment to Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": ":speech_balloon: *${{ github.actor }}* commented:\n>${{ github.event.comment.body }}\n\n🔗 <${{ github.event.comment.html_url }}|코멘트 바로 가기>"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
