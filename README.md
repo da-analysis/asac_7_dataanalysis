@@ -41,4 +41,4 @@ Git 정책 가이드
 
 - - -
 ### Contributors
-*syleeie*, *ckm0104*
+*syleeie*, *ckm0104*, *khye00*
