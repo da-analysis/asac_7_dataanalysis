@@ -41,4 +41,5 @@ Git 정책 가이드
 
 - - -
 ### Contributors
-*syleeie*, *NUNURI2*, *seoyoung1027*, *ckm0104*, *khye00*, *Hello-Miz*
+
+*syleeie*, *jiiiim442*, *NUNURI2*, *seoyoung1027*, *ckm0104*, *khye00*, *Hello-Miz*
