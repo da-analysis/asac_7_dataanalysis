@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import time
 
-# PySpark 세션 생성
+#   PySpark 세션 생성
 spark = SparkSession.builder \
     .appName("API Data Collection for 행정동 단위 상가업소 조회") \
     .config("spark.databricks.delta.schema.autoMerge.enabled", "true") \
@@ -108,7 +108,7 @@ def collect_data(divId, key):
     print(f"\n🚀 '{divId}' - '{key}' 수집 시작")
     while True:
         params = {
-            'serviceKey': "TdB+le3iJsraWH2A+djC2/JyhLNKTj7Q7OSyWcR4t93CLpothF5v5ccho4tiaT4/s9Ws9WWNEDQ/dQcpbi7C6A==",
+            'serviceKey': "입력하세요",
             'type': 'json',
             'pageNo': page,
             'numOfRows': 1000,
