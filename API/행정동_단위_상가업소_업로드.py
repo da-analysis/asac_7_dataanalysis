@@ -99,7 +99,7 @@ def save_to_delta(data):
             .option("mergeSchema", "true") \
             .mode("append") \
             .saveAsTable(catalog_table)
-        print(f"Delta 테이블 저장 완료: {len(data)}개")
+        print(f"Delta 테이블 저장 완료: {len(data)} 개")
 
 # API 수집 함수
 def collect_data(divId, key):
@@ -108,7 +108,7 @@ def collect_data(divId, key):
     print(f"\n🚀 '{divId}' - '{key}' 수집 시작")
     while True:
         params = {
-            'serviceKey': "입력하세요",
+            'serviceKey': "TdB+le3iJsraWH2A+djC2/JyhLNKTj7Q7OSyWcR4t93CLpothF5v5ccho4tiaT4/s9Ws9WWNEDQ/dQcpbi7C6A==",
             'type': 'json',
             'pageNo': page,
             'numOfRows': 1000,

@@ -76,7 +76,7 @@ def initialize_delta_table():
         spark.table(catalog_table)
         print(f"Delta 테이블 '{catalog_table}'이 이미 존재합니다.")
     except Exception:
-        print(f"Delta 테이블 '{catalog_table}'이 존재하지 않습니다. 새로 생성합니다.")
+        print(f"Delta 테이블 '{catalog_table}'이 존재하지 않습니다. 새로 생성 합니다.")
         empty_df = spark.createDataFrame([], schema)
         empty_df.write.format("delta").mode("overwrite").saveAsTable(catalog_table)
         print(f"Delta 테이블 '{catalog_table}' 생성 완료.")
@@ -129,7 +129,7 @@ def collect_data(key):
 
     while True:
         params = {
-            'serviceKey': "입력하세요",
+            'serviceKey': "TdB+le3iJsraWH2A+djC2/JyhLNKTj7Q7OSyWcR4t93CLpothF5v5ccho4tiaT4/s9Ws9WWNEDQ/dQcpbi7C6A==",
             'type': 'json',
             'pageNo': page,
             'numOfRows': 1000,
