@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import time
 
-# PySpark 세션 생성
+#   PySpark 세션 생성
 spark = SparkSession.builder \
     .appName("API Data Collection for 행정동 단위 상가업소 조회") \
     .config("spark.databricks.delta.schema.autoMerge.enabled", "true") \
@@ -99,7 +99,7 @@ def save_to_delta(data):
             .option("mergeSchema", "true") \
             .mode("append") \
             .saveAsTable(catalog_table)
-        print(f"Delta 테이블 저장 완료: {len(data)}개")
+        print(f"Delta 테이블 저장 완료: {len(data)} 개")
 
 # API 수집 함수
 def collect_data(divId, key):

@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import time
 
-# ✅ PySpark 세션 생성
+#  PySpark 세션 생성
 spark = SparkSession.builder \
     .appName("API Data Collection for 업종별 상가업소 조회") \
     .config("spark.databricks.delta.schema.autoMerge.enabled", "true") \
@@ -76,7 +76,7 @@ def initialize_delta_table():
         spark.table(catalog_table)
         print(f"Delta 테이블 '{catalog_table}'이 이미 존재합니다.")
     except Exception:
-        print(f"Delta 테이블 '{catalog_table}'이 존재하지 않습니다. 새로 생성합니다.")
+        print(f"Delta 테이블 '{catalog_table}'이 존재하지 않습니다. 새로 생성 합니다.")
         empty_df = spark.createDataFrame([], schema)
         empty_df.write.format("delta").mode("overwrite").saveAsTable(catalog_table)
         print(f"Delta 테이블 '{catalog_table}' 생성 완료.")
