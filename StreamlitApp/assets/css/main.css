@@ -1,0 +1,95 @@
+/* 기본 스타일 */
+html, body, [class*="css"] {
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    color: #333333;
+    background-color: #f0f2f6;
+}
+
+/* 모든 페이지의 h1 스타일 */
+h1 {
+    font-weight: 600 !important;         
+    text-align: left !important;         
+    color: #212121 !important;           
+    font-size: 2.5rem !important;       
+    line-height: 1.1 !important;         
+    margin: 1rem 0 0.1rem !important;
+    padding: 0.25rem 0 0.3rem !important;
+  }
+  
+/* 전체 앱 컨테이너 위쪽 패딩 */
+div[data-testid="stAppViewContainer"] {
+padding-top: 0.25rem !important;
+}
+
+h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    text-align: left;
+    color: #212121;
+}
+
+/* 문단 스타일 */
+p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #555555;
+}
+
+/* 메인페이지용 큰 버튼 스타일 (보류)
+.big-button > button {
+    width: 100%;
+    height: 55px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 12px;
+    background-color: #f0f0f0;
+    color: #333;
+    transition: background-color 0.3s, transform 0.2s;
+    border: none;
+}
+.big-button > button:hover {
+    background-color: #d0d0d0;
+    transform: scale(1.02);
+} */
+
+/* 기본 버튼 스타일 (대시보드용) */
+.stButton > button {
+    background-color: #e6e6e6;
+    color: #222222;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 14px;
+    padding: 0.7em 1.2em;
+    border: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.stButton > button:hover {
+    background-color: #d2d2d2;
+    transform: scale(1.05);
+}
+
+/* 본문 컨테이너 여백 조정 */
+.block-container {
+    width: 100%;
+    max-width: 1600px;
+    padding-left: 6rem;
+    padding-right: 6rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+/* columns 위 여백 없애기 */
+div.element-container:has(.stColumns) {
+    margin-top: 0rem;
+}
+div[data-testid="stHorizontalBlock"] {
+    margin-top: 0rem;
+}
+
+/* 프로젝트 소개용 컨테이너 */
+.intro-container {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.7;
+    padding: 1rem 0;       
+    margin-bottom: 1rem;   
+  }

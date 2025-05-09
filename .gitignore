@@ -1,0 +1,15 @@
+# Python 캐시 파일
+__pycache__/
+*.pyc
+
+# 가상환경 폴더
+venv/
+
+# 환경 변수 파일
+.env
+
+# Streamlit secrets 파일
+.streamlit/secrets.toml
+
+# 기타 OS 파일 (Mac의 경우 생성되는 파일)
+.DS_Store
