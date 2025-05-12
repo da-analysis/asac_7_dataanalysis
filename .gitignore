@@ -4,6 +4,7 @@ __pycache__/
 
 # 가상환경 폴더
 venv/
+newenv/
 
 # 환경 변수 파일
 .env

@@ -29,7 +29,7 @@ class GenieAPIHandler:
         conversation_id = result['conversation_id']
         message_id = result['message_id']
 
-        time.sleep(5)
+        time.sleep(12)
         
         # 2. SQL 메시지 조회 (GET → 절대 body 없음)
         url = f'https://{self.workspace}/api/2.0/genie/spaces/{self.space_id}/conversations/{conversation_id}/messages/{message_id}'
