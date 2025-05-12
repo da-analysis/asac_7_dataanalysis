@@ -4,26 +4,27 @@ from typing import TypedDict, Literal
 from handlers.genie_api_handler import GenieAPIHandler
 from handlers.local_rag_handler import LocalRAGHandler
 from handlers.router import LLMRouter
+from dotenv import load_dotenv
 
 import os, sys
 sys.path.insert(0, "../handlers")
+load_dotenv()
 
 # OpenAI API Key 설정
-os.environ["OPENAI_API_KEY"] = "YOUR_API_KEY"
+os.environ["OPENAI_API_KEY"]
 
 # ─────────────────────────────────────────────────────────────
 # 1. 시스템 클래스 인스턴스 정의
 genie_api = GenieAPIHandler(
-    workspace="tacademykr-asacdataanalysis.cloud.databricks.com",
-    token="GENIE_TOKEN",
-    space_id="SPACE_ID"
+    workspace=os.environ["DATABRICKS_WORKSPACE"],
+    token=os.environ["DATABRICKS_TOKEN"],
+    space_id=os.environ["DATABRICKS_SPACE_ID"]
 )
 
 rag_api = LocalRAGHandler(
-    bucket="asac-7-dataanalysis",
-    key="RAG_KEY"
+    bucket= os.environ["BUCKET_NAME"],
+    key=os.environ["BUCKET_KEY"]
 )
-
 router = LLMRouter()
 
 # ─────────────────────────────────────────────────────────────
