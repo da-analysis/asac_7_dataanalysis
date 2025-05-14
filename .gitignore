@@ -14,3 +14,7 @@ newenv/
 
 # 기타 OS 파일 (Mac의 경우 생성되는 파일)
 .DS_Store
+
+# 각 폴더에서 생길 수 있는 nohup 로그 파일 무시 
+**/nohup.out
+*.log 

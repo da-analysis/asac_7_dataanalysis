@@ -1,0 +1,10 @@
+streamlit
+pandas
+python-dotenv
+requests
+boto3
+beautifulsoup4
+langchain
+langchain-openai
+langchain-community
+langgraph
