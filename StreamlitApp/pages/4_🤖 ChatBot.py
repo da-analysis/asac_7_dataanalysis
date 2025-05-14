@@ -1,5 +1,5 @@
 import streamlit as st
-import os 
+from utils.css_loader import load_css
 from server.chatbot_run import ChatbotRun # server 폴더에서 ChatBotTest 클래스 import 
 
 # 세션에 챗봇 객체 저장 
@@ -8,16 +8,9 @@ if "chatbot" not in st.session_state:
 
 chatbot = st.session_state.chatbot
 
-# load css - main.css, chatbot.css 
-def load_css(file_path):
-    if os.path.exists(file_path):
-        with open(file_path, encoding="utf-8") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-load_css(os.path.join(BASE_DIR, '..', 'assets', 'css', 'main.css'))
-load_css(os.path.join(BASE_DIR, '..', 'assets', 'css', 'chatbot.css'))
+# CSS 로드
+load_css("main.css")
+load_css("chatbot.css")
 
 # 본문
 st.title("🤖 ChatBot")
