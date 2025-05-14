@@ -1,18 +1,11 @@
 import streamlit as st
-import os
+from utils.css_loader import load_css
 
 # 페이지 제목  
 st.set_page_config(page_title="소상공인 현황 분석 및 폐업률 예측", page_icon="🏪", layout="wide")
 
-# load css 
-def load_css(file_path):
-    if os.path.exists(file_path):
-        with open(file_path, encoding="utf-8") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-main_css_path = os.path.join(BASE_DIR, 'assets', 'css', 'main.css')
-load_css(main_css_path)
+# CSS 로드
+load_css("main.css")
 
 # 제목
 st.markdown("""
@@ -77,9 +70,9 @@ if st.session_state.selected_page == "프로젝트 소개":
         """, unsafe_allow_html=True)
 
     st.write("---")
-    st.markdown("<h3 style='font-size:26px;'>📄 페이지 미리보기</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='preview-title'>📄 페이지 미리보기</div>", unsafe_allow_html=True)
 
-    tab1, tab2, tab3 = st.tabs(["📊 대시보드", "📈 폐업률 예측 서비스", "🤖 ChatBot"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 대시보드", "📈 폐업률 예측 서비스", "🧾 폐업 예측 모델 API 명세서", "🤖 ChatBot"])
 
     with tab1:
         st.subheader("📊 대시보드")
@@ -98,6 +91,13 @@ if st.session_state.selected_page == "프로젝트 소개":
         st.info("예측 서비스 화면 준비 중입니다.")
 
     with tab3:
+        st.subheader("🧾 폐업 예측 모델 API 명세서")
+        st.markdown("""
+        🔹  폐업 예측 모델 API의 입력 파라미터, 응답 형식, 예시 등 API 사용에 필요한 명세 정보 제공 
+        """)
+        st.info("API 명세서 화면 준비 중입니다.")
+
+    with tab4:
         st.subheader("🤖 ChatBot")
         st.markdown("""
         🔹 창업 지원 정책에 대한 Q&A 챗봇  
