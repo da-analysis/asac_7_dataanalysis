@@ -1,54 +1,37 @@
 import streamlit as st
-import os
+from utils.css_loader import load_css
+from utils.dashboard_embbder import embed_dashboard 
 
-# css load  - main, dashboard 
-def load_css(file_path):
-    if os.path.exists(file_path):
-        with open(file_path, encoding="utf-8") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# CSS 로드
+load_css("main.css")
+load_css("dashboard.css")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+st.sidebar.markdown("### 📊 대시보드 탐색")
 
-load_css(os.path.join(BASE_DIR, '..', 'assets', 'css', 'main.css'))
-load_css(os.path.join(BASE_DIR, '..', 'assets', 'css', 'dashboard.css'))
-
-# 사이드바
-st.sidebar.header("📊 대시보드 탐색")
-
-with st.sidebar.expander("지역기준 대시보드", expanded=False):
-    selected_region = st.selectbox(
-        "지역기준 선택",
-        ["기본 상권 정보", "상권활성화지수", "유동인구", "지역별 가맹점 수", "상권별 추정매출", "소비특성", "상권변화지표"],
-        key="region"
-    )
-
-with st.sidebar.expander("업종기준 대시보드", expanded=False):
-    selected_category = st.selectbox(
-        "업종기준 선택",
-        ["업종 실시간 상권현황", "업종별 사업체 현황", "업종별 창업위험도", "업종별 추정매출", "상권변화지표"],
-        key="category"
-    )
-
-with st.sidebar.expander("폐업/개업 대시보드", expanded=False):
-    selected_openclose = st.selectbox(
-        "폐업/개업 선택",
-        ["개업, 폐업, 재창업 수", "업종, 지역별 개폐업률", "상권변화지표", "영세자영업 폐업 점포 수", "영세자영업 평균 영업기간별 점포 수"],
-        key="openclose"
-    )
+dashboard_type = st.sidebar.radio(
+    "대시보드 유형 선택",
+    ["지역기준 대시보드", "업종기준 대시보드", "폐업/개업 대시보드", "전통시장 매출 분석 대시보드"],
+    key="dashboard_radio",
+    label_visibility="collapsed"
+)
 
 # 본문
-st.title("📊 대시보드")
+st.title(f"📊 {dashboard_type}")
+st.write("---")
 
-tab1, tab2, tab3 = st.tabs(["지역기준 대시보드", "업종기준 대시보드", "폐업/개업 대시보드"])
-
-with tab1:
-    st.subheader("지역기준 대시보드")
+if dashboard_type == "지역기준 대시보드":
     st.markdown("- 서울시 상권/인구/매출/폐업 데이터 시각화")
 
-with tab2:
-    st.subheader("업종기준 대시보드")
+elif dashboard_type == "업종기준 대시보드":
     st.markdown("- 업종별 점포수, 매출 증감, 폐업률 분석")
 
-with tab3:
-    st.subheader("폐업/개업 대시보드")
+elif dashboard_type == "폐업/개업 대시보드":
     st.markdown("- 연도별 폐업/개업 트렌드 분석")
+
+elif dashboard_type == "전통시장 매출 분석 대시보드":
+    iframe_url = f"https://tacademykr-asacdataanalysis.cloud.databricks.com/embed/dashboardsv3/01f01ab73ff4171981953dbdf8f44c32?o=639069795658224&f_7621baaa%7E716c7a53=%25EB%25AF%25B8%25EA%25B3%25A1%25ED%258C%2590%25EB%25A7%25A4&f_7621baaa%7Edcc9cb7a=%25EB%2582%2599%25EC%259B%2590%25EC%258B%259C%25EC%259E%25A5%28%25EB%2582%2599%25EC%259B%2590%25EC%25A7%2580%25ED%2595%2598%25EC%258B%259C%25EC%259E%25A5%28%25EB%258C%2580%25EC%259D%25BC%25EC%2583%2581%25EA%25B0%2580%29%29"
+    
+    st.markdown("- 서울열린데이터광장의 전통시장 데이터를 기반으로 구성된 대시보드입니다.")
+    st.markdown("- 상권별, 서비스별 매출 관련 시각화를 제공합니다.")
+    
+    embed_dashboard(dashboard_url=iframe_url, height=1500)
