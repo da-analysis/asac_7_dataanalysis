@@ -1,21 +1,15 @@
 import streamlit as st
-import os 
+from utils.css_loader import load_css
 
-# css load - main.css, prediction.css 
-def load_css(file_path):
-    if os.path.exists(file_path):
-        with open(file_path, encoding="utf-8") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-load_css(os.path.join(BASE_DIR, '..', 'assets', 'css', 'main.css'))
-load_css(os.path.join(BASE_DIR, '..', 'assets', 'css', 'prediction.css'))
+# CSS 로드
+load_css("main.css")
+load_css("prediction.css")
 
 # 본문 
 st.title("📈 폐업률 예측 서비스")
-st.markdown("서울시 지역과 업종을 선택하여 폐업률을 예측합니다.")
 st.write("---")
+st.markdown("- 서울시 지역과 업종을 선택하여 폐업률을 예측합니다.")
+st.write(" ")
 
 # 서울시 25개 구 리스트
 seoul_gu_list = [
