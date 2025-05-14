@@ -1,0 +1,135 @@
+/* EXPANDER 스타일 (전체 배경, 테두리, 여백) */
+[data-testid="stExpander"] > details {
+  background-color: #eef7ee !important;
+  border: 1px solid #cce0cc !important;
+  border-radius: 6px !important;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  color: #222 !important;
+}
+
+[data-testid="stExpander"] > details > div {
+  background-color: #eef7ee !important;
+}
+
+/* EXPANDER 제목 (summary 줄 + POST 라벨) */
+[data-testid="stExpander"] > details > summary {
+  background-color: #eef7ee !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  color: #1f1f1f !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+}
+
+[data-testid="stExpander"] > details > summary::before {
+  content: "POST";
+  background-color: #2d7441;
+  color: white;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* SECTION / SUBSECTION 타이틀 스타일 */ 
+.custom-section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #222;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+
+.api-subtitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #444;
+  margin-top: 1.4rem;
+  margin-bottom: 0.6rem;
+  border-left: 4px solid #c3e4d3;
+  padding-left: 12px;
+}
+
+.tight-hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 4px 0 12px 0;
+}
+
+/* 탭, 셀렉트박스, 코드 블럭 */
+[data-baseweb="select"] {
+  max-width: 220px;
+  font-size: 14px;
+}
+
+[data-testid="stTabs"] > div {
+  margin-top: -0.5rem;
+}
+
+code, pre, .stCodeBlock {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  background-color: #1e1e1e;
+  color: #f8f8f2;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  border: 1px solid #444;
+}
+
+/* SON 입력창 스타일 */
+.stTextArea textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  background-color: #fefefe;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+/* METRIC 컴포넌트 스타일 */
+[data-testid="stMetricValue"] {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* CURL 테이블 */
+.curl-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 14px;
+}
+
+.curl-table th,
+.curl-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 10px;
+}
+
+.curl-table pre {
+  background-color: #f8f8f8;
+  border-radius: 6px;
+  padding: 10px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+/* 페이지 전체 기본 간격 */
+.block-container {
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+  line-height: 1.6;
+}
