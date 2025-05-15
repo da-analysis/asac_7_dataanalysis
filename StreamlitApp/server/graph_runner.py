@@ -37,7 +37,7 @@ class GraphState(TypedDict, total=False):
     route: Literal["A", "B"]
     response: str
     response_df: pd.DataFrame
-
+    description: str 
 # ─────────────────────────────────────────────────────────────
 # 3. LangGraph 노드 정의
 
@@ -49,15 +49,20 @@ def question_node(state: GraphState) -> GraphState:
 def classify_node(state: GraphState) -> GraphState:
     question = state["question"]
     route = router.route(question)
-    print(f"[DEBUG] 분류된 경로: {route}") 
-    return {**state, "route": route}
+    print(f"[DEBUG] 분류된 경로 원본: {route!r}")  # 문자열 그대로 출력
+    normalized_route = route.strip().upper()
+    print(f"[DEBUG] 정규화된 경로: {normalized_route}")
+    
+    if normalized_route == "B":
+        st.session_state.pop("genie_conversation_id", None)
+        print("[DEBUG] Genie 세션 초기화 완료")
+    
+    return {**state, "route": normalized_route}
 
 # A 시스템 처리
 def genie_node(state: GraphState) -> GraphState:
     try:
-        print("[DEBUG] genie_node 진입")
         question = state["question"]
-        print(f"[DEBUG] 질문: {question}")
 
         # conversation_id 유지 여부 체크
         if "genie_conversation_id" not in st.session_state:
@@ -81,7 +86,7 @@ def genie_node(state: GraphState) -> GraphState:
             print("[DEBUG] message 객체 내용:", message)
 
             attachments = message.get("attachments", [])
-            status_val = message.get("status", "")  # ← 여기 수정함
+            status_val = message.get("status", "")
             print("[DEBUG] 현재 상태:", status_val)
             if status_val in ("SUCCEEDED", "COMPLETED") and attachments:
                 print("[DEBUG] 쿼리 성공!")
@@ -90,15 +95,12 @@ def genie_node(state: GraphState) -> GraphState:
             return {**state, "response": "❗쿼리 결과를 가져오는 데 실패했습니다."}
 
         attachment_id = attachments[0]["attachment_id"]
-        description = attachments[0]["query"]["description"]
+        description = attachments[0]["query"].get("description", None)
 
         result_data = genie_api.get_query_result(conversation_id, message_id, attachment_id)
 
         data_array = result_data.get("statement_response", {}).get("result", {}).get("data_array", [])
         columns_schema = result_data.get("statement_response", {}).get("manifest", {}).get("schema", {}).get("columns", [])
-
-        print("[DEBUG] data_array:", data_array)
-        print("[DEBUG] columns_schema:", columns_schema)
 
         column_names = [col.get("name", f"col{i}") for i, col in enumerate(columns_schema)]
 
@@ -106,7 +108,7 @@ def genie_node(state: GraphState) -> GraphState:
             df = pd.DataFrame(data_array, columns=column_names)
             return {**state, "response_df": df, "description": description}
         else:
-            return {**state, "response": "데이터가 비어있습니다. 더 구체적인 질문을 해보세요."}
+            return {**state, "response": "데이터가 비어있습니다.", "description": description}
 
     except Exception as e:
         print("[ERROR] 예외 발생:", str(e))
@@ -116,12 +118,18 @@ def genie_node(state: GraphState) -> GraphState:
 
 # B 시스템 처리
 def rag_node(state: GraphState) -> GraphState:
-    answer, _ = rag_api.ask(state["question"])
+    answer, meta = rag_api.ask(state["question"])
+    print("[DEBUG][RAG] answer:", answer)
+    print("[DEBUG][RAG] meta:", meta)
     return {**state, "response": answer}
 
 # 최종 응답 노드
 def response_node(state: GraphState) -> GraphState:
-    return state
+    return {
+        "response_df": state.get("response_df"),
+        "response": state.get("response"),
+        "description": state.get("description")
+    }
 
 # ─────────────────────────────────────────────────────────────
 # 4. LangGraph 구성
@@ -140,7 +148,7 @@ builder.add_edge("question_node", "classify_node")
 
 builder.add_conditional_edges(
     "classify_node",
-    lambda state: state["route"],
+    lambda state: state["route"].strip().upper(),
     {
         "A": "genie_node",
         "B": "rag_node",
@@ -171,13 +179,15 @@ if __name__ == "__main__":
 
 def run_chatbot(question: str) -> dict:
     output = graph.invoke({"question": question})
+    print("[DEBUG] 최종 output:", output)
 
-    if "response_df" in output:
-        return {"response_df": output["response_df"]}
-    elif "response" in output:
-        return {"response": output["response"]}
-    else:
-        return {"response": "❗답변을 생성하지 못했습니다. 다시 시도해 주세요."}
+    return {
+        "response": output.get("response"),
+        "response_df": output.get("response_df"),
+        "description": output.get("description"),
+        "route": output.get("route")
+    }
+
 
 
 # In[ ]:
