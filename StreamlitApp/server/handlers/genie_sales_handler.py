@@ -1,13 +1,10 @@
 import os
-import time
-import pandas as pd
-import streamlit as st
-from dotenv import load_dotenv
 import requests
+from dotenv import load_dotenv
 
 load_dotenv()
 
-class GenieAPIHandler:
+class GenieSALESHandler:
     def __init__(self, workspace, token, space_id):
         self.workspace = workspace
         self.token = token
@@ -37,25 +34,23 @@ class GenieAPIHandler:
         return self._run_api(url)
 
 
-def genie_chat(question: str, genie_api: GenieAPIHandler):
+def genie_chat_sales(question: str, genie_api: GenieSALESHandler):
     try:
-        # 대화 시작 or 이어가기
-        if "genie_conversation_id" not in st.session_state:
+        if "genie_sales_conversation_id" not in st.session_state:
             result = genie_api.start_conversation(question)
-            st.session_state["genie_conversation_id"] = result["conversation_id"]
+            st.session_state["genie_sales_conversation_id"] = result["conversation_id"]
         else:
-            result = genie_api.ask_followup(st.session_state["genie_conversation_id"], question)
+            result = genie_api.ask_followup(st.session_state["genie_sales_conversation_id"], question)
 
         conversation_id = result["conversation_id"]
         message_id = result["message_id"]
 
-        # 대기 루프
         for _ in range(15):
             time.sleep(2)
             message = genie_api.get_query_info(conversation_id, message_id)
-            state = message.get("status", {}).get("state", "")
             attachments = message.get("attachments", [])
-            if state == "SUCCEEDED" and attachments:
+            state = message.get("status", "")
+            if state in ("SUCCEEDED", "COMPLETED") and attachments:
                 break
         else:
             return "❗쿼리 결과를 가져오는 데 실패했습니다."
@@ -65,7 +60,6 @@ def genie_chat(question: str, genie_api: GenieAPIHandler):
         description = attachment["query"].get("description", "(설명 없음)")
 
         result = genie_api.get_query_result(conversation_id, message_id, attachment_id)
-
         data_array = result.get("statement_response", {}).get("result", {}).get("data_array", [])
         columns_schema = result.get("statement_response", {}).get("manifest", {}).get("schema", {}).get("columns", [])
         column_names = [col.get("name", f"col{i}") for i, col in enumerate(columns_schema)]
@@ -78,4 +72,3 @@ def genie_chat(question: str, genie_api: GenieAPIHandler):
 
     except Exception as e:
         return f"❗오류 발생: {str(e)}"
-

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import boto3
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
@@ -97,11 +94,11 @@ class LocalRAGHandler:
 - 구분: 항목 유형 (예: 지원내용, 신청자격 등)
 - 내용: 해당 항목의 실제 설명입니다.
 
-※ 30년 이상 운영한 상가의 경우 '백년소상공인 육성사업'지원을 추천하며 상세한 내용을 제공하세요.
-※ '내용' 중 일부 표현(예: "폐업 지원")을 사업명으로 오인하지 마세요.
-※ 반드시 '사업명' 필드의 값만 제목으로 사용하세요.
-※ 해당하는 사업의 '사업명'을 강조한 후, 상세내용을 가능한한 상세하게 설명하세요.
-※ 만족도 설문, 문의처 등은 제외하고 정책 내용 위주로 설명하세요.
+- '내용' 중 일부 표현(예: "폐업 지원")을 사업명으로 오인하지 마세요.
+- 반드시 '사업명' 필드의 값만 제목으로 사용하세요.
+- 해당하는 사업의 '사업명'을 강조한 후, 상세내용을 가능한한 상세하게 설명하세요.
+- 만족도 설문, 문의처 등은 제외하고 정책 내용 위주로 설명하세요.
+- "장사가 안된다", "힘들다", "매출이 없다" 등의 표현은 '경영 부진'으로 해석하세요.
 
 문서:
 {summaries}
@@ -113,7 +110,7 @@ class LocalRAGHandler:
 """
         )
 
-        llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
+        llm = ChatOpenAI(model_name="gpt-4.1-mini", temperature=0)
         retriever = MultiQueryRetriever.from_llm(retriever=vectorstore.as_retriever(), llm=llm)
 
         return RetrievalQAWithSourcesChain.from_chain_type(

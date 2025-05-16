@@ -1,8 +1,10 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Literal
-from handlers.genie_api_handler import GenieAPIHandler
+from handlers.genie_sales_handler import GenieSALESHandler
+from handlers.genie_license_handler import GenieLICENSEHandler
 from handlers.local_rag_handler import LocalRAGHandler
 from handlers.router import LLMRouter
+from handlers.fallback_handler import fallback_example_node
 from dotenv import load_dotenv
 import time
 import pandas as pd
@@ -16,12 +18,17 @@ os.environ["OPENAI_API_KEY"]
 
 # ─────────────────────────────────────────────────────────────
 # 1. 시스템 클래스 인스턴스 정의
-genie_api = GenieAPIHandler(
+genie_sales_api = GenieSALESHandler(
     workspace=os.environ["DATABRICKS_WORKSPACE"],
-    token=os.environ["DATABRICKS_TOKEN"],
-    space_id=os.environ["DATABRICKS_SPACE_ID"]
+    token=os.environ["DATABRICKS_TOKEN_SALE"],
+    space_id=os.environ["DATABRICKS_SPACE_ID_SALE"]
 )
 
+genie_license_api = GenieLICENSEHandler(
+    workspace=os.environ["DATABRICKS_WORKSPACE"],
+    token=os.environ["DATABRICKS_TOKEN_LICENSE"],
+    space_id=os.environ["DATABRICKS_SPACE_ID_LICENSE"]
+)
 
 rag_api = LocalRAGHandler(
     bucket= os.environ["BUCKET_NAME"],
@@ -34,7 +41,7 @@ router = LLMRouter()
 # 2. 상태 타입 정의
 class GraphState(TypedDict, total=False):
     question: str
-    route: Literal["A", "B"]
+    route: Literal["A", "B", "C", "X"]
     response: str
     response_df: pd.DataFrame
     description: str 
@@ -60,48 +67,50 @@ def classify_node(state: GraphState) -> GraphState:
     return {**state, "route": normalized_route}
 
 # A 시스템 처리
-def genie_node(state: GraphState) -> GraphState:
+def genie_sales_node(state: GraphState) -> GraphState:
     try:
         question = state["question"]
 
         # conversation_id 유지 여부 체크
-        if "genie_conversation_id" not in st.session_state:
-            print("[DEBUG] 대화 새로 시작")
-            result = genie_api.start_conversation(question)
-            st.session_state["genie_conversation_id"] = result["conversation_id"]
+        if "genie_sales_conversation_id" not in st.session_state:
+            print("[DEBUG] [SALES] 대화 새로 시작")
+            result = genie_sales_api.start_conversation(question)
+            st.session_state["genie_sales_conversation_id"] = result["conversation_id"]
         else:
-            print("[DEBUG] 이전 대화 계속 사용")
-            result = genie_api.ask_followup(st.session_state["genie_conversation_id"], question)
+            print("[DEBUG] [SALES] 이전 대화 계속 사용")
+            result = genie_sales_api.ask_followup(st.session_state["genie_sales_conversation_id"], question)
 
         conversation_id = result["conversation_id"]
         message_id = result["message_id"]
-        print(f"[DEBUG] conversation_id: {conversation_id}, message_id: {message_id}")
+        print(f"[DEBUG] [SALES] conversation_id: {conversation_id}, message_id: {message_id}")
 
         # attachments polling
         for i in range(15):
-            print(f"[DEBUG] polling {i+1}/15 ...")
+            print(f"[DEBUG] [SALES] polling {i+1}/15 ...")
             time.sleep(2)
-            message = genie_api.get_query_info(conversation_id, message_id)
-            print("[DEBUG] message 객체 타입:", type(message))
-            print("[DEBUG] message 객체 내용:", message)
-
+            message = genie_sales_api.get_query_info(conversation_id, message_id)
             attachments = message.get("attachments", [])
             status_val = message.get("status", "")
-            print("[DEBUG] 현재 상태:", status_val)
+            print("[DEBUG] [SALES] 현재 상태:", status_val)
             if status_val in ("SUCCEEDED", "COMPLETED") and attachments:
-                print("[DEBUG] 쿼리 성공!")
+                print("[DEBUG] [SALES] 쿼리 성공!")
                 break
         else:
             return {**state, "response": "❗쿼리 결과를 가져오는 데 실패했습니다."}
 
-        attachment_id = attachments[0]["attachment_id"]
-        description = attachments[0]["query"].get("description", None)
+        attachment = attachments[0]
+        query_block = attachment.get("query")
+        text_block = attachment.get("text", {}).get("content")
 
-        result_data = genie_api.get_query_result(conversation_id, message_id, attachment_id)
+        if not query_block:
+            return {**state, "response": text_block or "답변은 생성됐지만 실행 가능한 쿼리는 없었습니다."}
 
+        attachment_id = attachment["attachment_id"]
+        description = query_block.get("description", None)
+
+        result_data = genie_sales_api.get_query_result(conversation_id, message_id, attachment_id)
         data_array = result_data.get("statement_response", {}).get("result", {}).get("data_array", [])
         columns_schema = result_data.get("statement_response", {}).get("manifest", {}).get("schema", {}).get("columns", [])
-
         column_names = [col.get("name", f"col{i}") for i, col in enumerate(columns_schema)]
 
         if data_array and column_names:
@@ -111,17 +120,72 @@ def genie_node(state: GraphState) -> GraphState:
             return {**state, "response": "데이터가 비어있습니다.", "description": description}
 
     except Exception as e:
-        print("[ERROR] 예외 발생:", str(e))
-        print("[ERROR] 예외 타입:", type(e))
+        print("[ERROR] [SALES] 예외 발생:", str(e))
         return {**state, "response": f"❗데이터 처리 중 오류가 발생했습니다.\n({str(e)})"}
 
-
 # B 시스템 처리
+def genie_license_node(state: GraphState) -> GraphState:
+    try:
+        question = state["question"]
+
+        if "genie_license_conversation_id" not in st.session_state:
+            print("[DEBUG] [LICENSE] 대화 새로 시작")
+            result = genie_license_api.start_conversation(question)
+            st.session_state["genie_license_conversation_id"] = result["conversation_id"]
+        else:
+            print("[DEBUG] [LICENSE] 이전 대화 계속 사용")
+            result = genie_license_api.ask_followup(st.session_state["genie_license_conversation_id"], question)
+
+        conversation_id = result["conversation_id"]
+        message_id = result["message_id"]
+        print(f"[DEBUG] [LICENSE] conversation_id: {conversation_id}, message_id: {message_id}")
+
+        for i in range(15):
+            print(f"[DEBUG] [LICENSE] polling {i+1}/15 ...")
+            time.sleep(2)
+            message = genie_license_api.get_query_info(conversation_id, message_id)
+            attachments = message.get("attachments", [])
+            status_val = message.get("status", "")
+            print("[DEBUG] [LICENSE] 현재 상태:", status_val)
+            if status_val in ("SUCCEEDED", "COMPLETED") and attachments:
+                print("[DEBUG] [LICENSE] 쿼리 성공!")
+                break
+        else:
+            return {**state, "response": "❗쿼리 결과를 가져오는 데 실패했습니다."}
+
+        attachment = attachments[0]
+        query_block = attachment.get("query")
+        description = query_block.get("description", None)
+        attachment_id = attachment["attachment_id"]
+
+        result_data = genie_license_api.get_query_result(conversation_id, message_id, attachment_id)
+        data_array = result_data.get("statement_response", {}).get("result", {}).get("data_array", [])
+        columns_schema = result_data.get("statement_response", {}).get("manifest", {}).get("schema", {}).get("columns", [])
+        column_names = [col.get("name", f"col{i}") for i, col in enumerate(columns_schema)]
+
+        if data_array and column_names:
+            df = pd.DataFrame(data_array, columns=column_names)
+            return {**state, "response_df": df, "description": description}
+        else:
+            return {**state, "response": "데이터가 비어있습니다.", "description": description}
+    except Exception as e:
+        print("[ERROR] [LICENSE] 예외 발생:", str(e))
+        return {**state, "response": f"❗LICENSE 처리 중 오류 발생: {str(e)}"}
+
+
+# C 시스템 처리
 def rag_node(state: GraphState) -> GraphState:
     answer, meta = rag_api.ask(state["question"])
     print("[DEBUG][RAG] answer:", answer)
     print("[DEBUG][RAG] meta:", meta)
     return {**state, "response": answer}
+
+# fallback 처리 노드 (분류 실패 시 예시 안내)
+def fallback_node(state: GraphState) -> GraphState:
+    return {
+        **state,
+        "response": fallback_example_node(state["question"])["response"]
+    }
 
 # 최종 응답 노드
 def response_node(state: GraphState) -> GraphState:
@@ -139,24 +203,28 @@ builder.set_entry_point("question_node")
 
 builder.add_node("question_node", question_node)
 builder.add_node("classify_node", classify_node)
-builder.add_node("genie_node", genie_node)
+builder.add_node("genie_sales_node", genie_sales_node)
+builder.add_node("genie_license_node", genie_license_node)
 builder.add_node("rag_node", rag_node)
 builder.add_node("respond_node", response_node)
-
-builder.set_entry_point("question_node")
+builder.add_node("fallback_node", fallback_node)
 builder.add_edge("question_node", "classify_node")
 
 builder.add_conditional_edges(
     "classify_node",
     lambda state: state["route"].strip().upper(),
     {
-        "A": "genie_node",
-        "B": "rag_node",
+        "A": "genie_sales_node",
+        "B": "genie_license_node",
+        "C": "rag_node",
+        "X": "fallback_node",
     }
 )
 
-builder.add_edge("genie_node", "respond_node")
+builder.add_edge("genie_sales_node", "respond_node")
+builder.add_edge("genie_license_node", "respond_node")
 builder.add_edge("rag_node", "respond_node")
+builder.add_edge("fallback_node", "respond_node")
 builder.set_finish_point("respond_node")
 
 graph = builder.compile()
