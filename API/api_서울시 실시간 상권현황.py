@@ -6,6 +6,21 @@ from datetime import datetime, timezone, timedelta
 import requests 
 import time 
 
+# 서울시 주요 상권 82장소 AREA_CD 리스트
+area_codes = [
+    "POI001", "POI002", "POI003", "POI004", "POI005", "POI006", "POI007", "POI009",
+    "POI010", "POI013", "POI014", "POI015", "POI016", "POI017", "POI018", "POI019",
+    "POI020", "POI021", "POI023", "POI024", "POI025", "POI026", "POI027", "POI029",
+    "POI031", "POI032", "POI033", "POI034", "POI035", "POI036", "POI037", "POI038",
+    "POI039", "POI040", "POI041", "POI042", "POI043", "POI044", "POI045", "POI046",
+    "POI047", "POI048", "POI049", "POI050", "POI051", "POI052", "POI053", "POI054",
+    "POI055", "POI056", "POI058", "POI059", "POI060", "POI061", "POI063", "POI064",
+    "POI066", "POI067", "POI068", "POI070", "POI071", "POI072", "POI073", "POI074",
+    "POI076", "POI077", "POI078", "POI079", "POI080", "POI081", "POI082", "POI083",
+    "POI084", "POI114", "POI115", "POI116", "POI117", "POI118", "POI119", "POI120",
+    "POI121", "POI122"
+]
+
 # 수집 데이터 평탄화 함수 
 def flatten_citydata(citydata, collected_time): 
     flat = {
@@ -153,7 +168,7 @@ def remove_duplicates(table_name):
         print(f"[ERROR] 중복 제거 중 오류 발생: {e}")
 
 # 상권현황 데이터 수집 함수 
-def collect_seoul_commercial_data(api_keys, start=1, end=117): 
+def collect_seoul_commercial_data(api_keys, area_codes): 
     
     # 수집 데이터 리스트
     all_location_status_rows = [] 
@@ -164,13 +179,12 @@ def collect_seoul_commercial_data(api_keys, start=1, end=117):
     industry_id = 0
     request_count = 0
     
-    for i in range(start, end):
+    for area_code in area_codes:
         if request_count >= len(api_keys) * 1000: 
             print("모든 API 키의 일일 호출 한도를 초과했습니다.")
             break 
 
         api_key = api_keys[min(request_count // 1000, len(api_keys) - 1)]  
-        area_code = f"POI{i:03d}"
         url = f"http://openapi.seoul.go.kr:8088/{api_key}/json/citydata_cmrcl/1/5/{area_code}"
 
         try:
@@ -220,13 +234,12 @@ def collect_seoul_commercial_data(api_keys, start=1, end=117):
 
 # API 키 리스트 (최대 1000건/키)
 api_keys = [
-    "api_key_1",
-    "api_key_2",
-    "api_key_3"
+    "API_KEY_1",
+    "API_KEY_2"
 ] 
 
 # 데이터 수집 
-all_location_status_rows, all_location_industry_rows = collect_seoul_commercial_data(api_keys) 
+all_location_status_rows, all_location_industry_rows = collect_seoul_commercial_data(api_keys, area_codes) 
 
 # dalta table 초기화 
 initialize_delta_table(catalog_table_1, area_schema)
