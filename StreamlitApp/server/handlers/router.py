@@ -2,8 +2,6 @@
 # coding: utf-8
 
 # In[1]:
-
-
 import re
 from langchain_core.runnables import RunnableSequence
 from langchain.prompts import PromptTemplate
@@ -11,42 +9,59 @@ from langchain_openai import ChatOpenAI
 
 class LLMRouter:
     def __init__(self):
-        self.llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
+        self.llm = ChatOpenAI(model_name="gpt-4.1-mini", temperature=0)
         self.prompt = PromptTemplate(
             input_variables=["question"],
             template="""
-당신은 사용자의 질문에 따라 시스템 목록 분류 키워드와 질문 내용을 기반으로 아래 시스템 중 하나를 선택해야 합니다.
-시스템 분류 목록 키워드를 최우선으로 선별 기준으로 채택하고, 질문에 시스템 목록 분류 키워드가 없다면 질문의 내용을 기반으로 선택해주세요.
-질문이 너무 일반적이거나 (예: "안녕하세요", "도움이 필요해요") 또는 시스템 분류와 명백히 관련 없는 경우 (예: 계정 문제, 비밀번호, 로그인 등)는 무조건 "X"로 답변하세요.
-이전 년도와 분기의 정확한 매출이나 구매건수에 대한 질문은 A,
-운영하고 있는 일반적인 상가들에 대한 정보와 서울의 실시간 상권, 인구데이터는 B,
-다양한 상황에 맞춰 지원받을 수 있는 정책에 대한 질문은 C 입니다.
+당신은 이전 대화 내용과 현재 질문을 참고하여, 다음 네 가지 시스템 중 하나를 분류하는 분류기 역할을 수행합니다.
 
-[시스템 목록]
-A: Databricks Genie API (SQL 매출 분석 관련 질문)
-B: Databricks Genie API (SQL 개,폐업한 상가들에 대한 질문 & 서울 실시간 데이터 & 인구밀도, 혼잡도, 유동인구, 주거인구)
-C: 소상공인 지원 정책 관련 질문 (RAG 기반 검색)
+※ 분류는 아래의 우선순위 및 규칙에 따라 A, B, C, D, X 중 하나의 **한 글자만** 출력해야 하며, 그 외의 문장이나 설명은 포함하지 마십시오.
 
-[시스템 목록 분류 키워드]
-A: 매출분석
-B: 업종분석, 실시간분석(시간분석)
-C: 지원정책
+---
+
+[분류 우선순위 및 규칙]
+
+1. 특정 업종명, 메뉴명, 사업장 이름이 등장하면 → 무조건 B
+    → 다른 키워드가 포함되더라도 B로 분류
+   - 예: “홍대에 있는 떡볶이집 어때요?”, “탕후루 가게 창업할까요?”
+
+2. A: 다음 조건 중 하나라도 만족하면 A로 분류합니다.
+- '전통시장', '발달상권', '골목상권', '관광특구' 중 하나와 '매출' 키워드가 함께 등장하는 경우
+- 매출, 객단가, 구매건수 등을 기준으로 한 분석 요청 (예: 랭킹, 평균, 변화 추이 등)
+- 연도나 분기를 특정하며 매출 정보를 요청하는 경우
+
+3. B: 개업, 폐업, 업종 정보, 인허가, 시간대별 인구, 서울 실시간 유동인구, 인구밀도 관련 질문
+
+4. C: 개업률, 생존율, 창업위험도, 평균영업기간, 프랜차이즈 관련 질문
+- 창업과 관련된 질문에서 "위험"에 관련된 것은 창업위험도를 의미합니다.
+
+5. D: 소상공인 지원정책, 신청방법, 지원금, 신청조건, 신청기간, 사례(또는 우수사례) 관련 질문
+- "장사가 안된다", "힘들다", "매출이 없다" 등의 표현은 '경영 부진'으로 해석하세요.
+
+6. X: 다음 중 하나에 해당하는 질문은 무조건 X로 분류
+   - 너무 일반적인 경우: “안녕하세요”, “도움이 필요해요”, "어떤 질문을 해야 하나요"
+   - 시스템과 명백히 무관한 경우: 계정 문제, 로그인 오류, 비밀번호 등
+
+---
+
+[출력 형식]
+
+- 반드시 A, B, C, D, X 중 하나의 **알파벳만 단독 출력**하십시오.
+- 다른 문장, 설명, 인사말 등은 절대 포함하지 마십시오.
+
+---
 
 질문: {question}
-
-반드시 A, B, C 중 하나의 알파벳만 단독으로 출력하세요.  
-다른 문장, 설명, 인사말 없이 **한 글자만** 출력하세요.  
-적절한 분류가 불가능하거나 질문이 무관하다면 "X"를 출력하세요.
 """
         )
         self.chain = self.prompt | self.llm
 
-    def route(self, question: str) -> str:
-        result = self.chain.invoke({"question": question})
+    def route(self, question: str, context: str = "") -> str:
+        full_question = f"{context}\n{question}".strip()
+        result = self.chain.invoke({"question": full_question})
         text = result.content.strip().upper()
 
-        # A, B, C 중 하나만 추출
-        if text in {"A", "B", "C"}:
+        if text in {"A", "B", "C", "D"}:
             return text
         else:
             return "X"

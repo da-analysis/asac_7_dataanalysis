@@ -11,3 +11,4 @@ langgraph
 lxml
 chromadb
 matplotlib
+pymupdf
