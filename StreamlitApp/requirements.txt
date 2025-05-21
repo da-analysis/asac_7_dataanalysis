@@ -12,3 +12,4 @@ lxml
 chromadb
 matplotlib
 pymupdf
+faiss-cpu
