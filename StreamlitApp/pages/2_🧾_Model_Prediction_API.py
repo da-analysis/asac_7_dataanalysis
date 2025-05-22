@@ -1,6 +1,8 @@
 import streamlit as st
 from utils.css_loader import load_css 
 
+st.set_page_config(page_title="Model Prediction API", layout="wide")
+
 # CSS 로드
 load_css("main.css")
 load_css("api_document.css")
