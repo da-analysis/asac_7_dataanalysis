@@ -25,7 +25,7 @@ def embed_dashboard(
     </style>
     """, unsafe_allow_html=True)
 
-    # 대시보드 설명명
+    # 대시보드 설명
     if description:
         st.markdown(f"<p style='margin-bottom: 0.5rem; color: #444;'>{description}</p>", unsafe_allow_html=True)
 
