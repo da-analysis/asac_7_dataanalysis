@@ -166,3 +166,10 @@ div.element-container:has(.stColumns) {
     transform: translateY(-1px);
 }
 
+/* 공통 섹션 타이틀 스타일 */
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.6rem;
+}
