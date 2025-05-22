@@ -35,3 +35,37 @@ border-radius: 12px;
     margin-top: -0.2rem;
     margin-bottom: 1rem;
 }
+
+.access-request-box {
+  margin-top: 2rem;
+  padding: 1.5rem 1.5rem;
+  border-radius: 12px;
+  background-color: #f7f9fb;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.access-request-box h4 {
+  margin-bottom: 0.4rem;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.access-request-box p {
+  margin-bottom: 1rem;
+  font-size: 15px;
+  color: #444;
+}
+
+.stButton > button {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0.5rem 1.4rem;
+  border-radius: 10px;
+  background-color: #e7e9ec;
+  transition: all 0.2s ease;
+}
+.stButton > button:hover {
+  background-color: #d3d6da;
+}

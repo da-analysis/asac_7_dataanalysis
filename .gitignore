@@ -18,3 +18,6 @@ newenv/
 # 각 폴더에서 생길 수 있는 nohup 로그 파일 무시 
 **/nohup.out
 *.log 
+
+# google api key 파일 
+StreamlitApp/google_api_key.json

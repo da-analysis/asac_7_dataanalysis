@@ -173,11 +173,9 @@ elif st.session_state.selected_page == "기타 정보":
             <div style='font-size:15px; line-height:1.8'>
 
             <div class="section-title">🔹 Project GitHub Repository</div>
-            <p>
-            <a href="https://github.com/da-analysis/asac_7_dataanalysis.git" target="_blank">
-            ASAC 7기 Data Analysis Project 바로가기
-            </a>
-            </p>
+            <p><b>▸ 
+            <a href="https://github.com/da-analysis/asac_7_dataanalysis.git" target="_blank">ASAC 7기 Data Analysis Project 바로가기</a>
+            </b></p>
 
             <hr style="margin: 1.2rem 0;">
 
@@ -200,7 +198,7 @@ elif st.session_state.selected_page == "기타 정보":
             &nbsp;&nbsp;&nbsp;&nbsp;→ <a href="https://data.seoul.go.kr" target="_blank">https://data.seoul.go.kr</a></p>
 
             <p><b>▸ 행정안전부 도로명주소 API</b><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;→ 시도, 시군구, 법정동 정보를 수집하여 모델의 피처처로 활용<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ 시도, 시군구, 법정동 정보를 수집하여 모델의 피처로 활용<br>
             &nbsp;&nbsp;&nbsp;&nbsp;→ <a href="https://www.juso.go.kr" target="_blank">https://www.juso.go.kr</a></p>
 
             </div>
