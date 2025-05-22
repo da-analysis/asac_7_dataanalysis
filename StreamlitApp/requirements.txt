@@ -1,4 +1,4 @@
-streamlit
+streamlit==1.45.1
 pandas
 python-dotenv
 requests
@@ -13,3 +13,5 @@ chromadb
 matplotlib
 pymupdf
 faiss-cpu
+gspread==6.2.1
+oauth2client==4.1.3 

@@ -21,6 +21,10 @@ dashboard_type = st.sidebar.radio(
     label_visibility="collapsed"
 )
 
+# 접근 권한 링크 
+st.sidebar.markdown("### 접근 권한")
+st.sidebar.markdown("[📋 대시보드 열람 신청하기](/대시보드_열람_신청)")
+
 st.markdown('<div id="dashboard-title" style="height: 1px;"></div>', unsafe_allow_html=True)
 
 # 제목
